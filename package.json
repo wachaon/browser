@@ -1,0 +1,24 @@
+{
+  "name": "browser",
+  "version": "0.0.1",
+  "description": "Operate Internet Explorer with wes",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/wachaon/browser.git"
+  },
+  "keywords": [
+    "wes",
+    "browser",
+    "InternetExplorer"
+  ],
+  "author": "wachaon@gmail.com",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/wachaon/browser/issues"
+  },
+  "homepage": "https://github.com/wachaon/browser#readme"
+}
