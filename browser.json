@@ -1,12 +1,12 @@
 {
-    "{D20F9A71-1C0B-4FBF-80DD-D293538973E5}": {
+    "{88C861E9-C31F-4B0A-B875-A55E577D86E9}": {
         "source": "const poling = require( '/src/poling' )\r\n\r\nmodule.exports = poling",
         "path": "{browser}/index.js",
         "mapping": {
-            "/src/poling": "{4BF2E67F-A929-4BF8-ABB1-4531D692FD3A}"
+            "/src/poling": "{798E3B67-0195-4AAC-811A-BCBE8237F431}"
         }
     },
-    "{4BF2E67F-A929-4BF8-ABB1-4531D692FD3A}": {
+    "{798E3B67-0195-4AAC-811A-BCBE8237F431}": {
         "source": "\r\nconst { isRegExp } = require( 'typecheck' )\r\n\r\nfunction poling ( callback, options ) {\r\n\r\n    function wait ( browser ) {\r\n        while ( browser.Busy || browser.readystate != 4 ) {\r\n            WScript.Sleep(100)\r\n        }\r\n    }\r\n\r\n    const app = require( 'InternetExplorer.Application' )\r\n    app.Visible = !options.invisible\r\n    app.Navigate( options.home || 'about:blank' )\r\n\r\n    wait( app )\r\n\r\n    const events = new Map()\r\n    const event = {\r\n        on ( target, fn ) {\r\n            if ( events.has( target ) ) events.get( target ).push( fn )\r\n            else events.set( target, [ fn ] )\r\n        },\r\n        emit ( url, ...params ) {\r\n            events.forEach( ( callbacks, evaluation ) => {\r\n                if ( ( isRegExp( evaluation ) && evaluation.test( url ) ) || String( evaluation ) === url ) callbacks.forEach( fn => fn( url, ...params ) )\r\n            } )\r\n        }\r\n    }\r\n\r\n    let result = {}\r\n\r\n    try {\r\n        callback( app, event, result )\r\n\r\n        let state = ''\r\n\r\n        while ( true ) {\r\n            wait( app )\r\n            let url = app.document.location.href\r\n            if ( state === url ) {\r\n                console.print( '.' )\r\n                WScript.Sleep( 100 )\r\n                continue\r\n            }\r\n            wait( app )\r\n            console.print( '\\n' )\r\n            event.emit( url )\r\n            state = url\r\n        }\r\n    } catch ( error ) {\r\n        console.print( '\\n' )\r\n        app.Visible = true\r\n        if ( options.exception ) options.exception( error, result )\r\n        else throw error\r\n    }\r\n}\r\n\r\nexports.poling = poling\r\n",
         "path": "{browser}/src/poling.js",
         "mapping": {}
