@@ -6,6 +6,13 @@ function poling ( callback, options ) {
     function wait ( browser ) {
         if ( isNumber( browser ) ) {
             let time = Math.random() * browser
+            const finish = new Date().getTime() + browser / 2 + time
+            let count = 0
+            let carriageReturn = '\u001B[1G'
+            while ( Date.now() < finish ) {
+                console.print( carriageReturn + 'waiting ' + display[ count++ % 4 ] )
+                WScript.Sleep( 50 )
+            }
             WScript.Sleep( browser / 2 + time )
         } else {
             while ( browser.Busy || browser.readystate != 4 ) {
