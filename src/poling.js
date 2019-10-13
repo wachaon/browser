@@ -1,11 +1,17 @@
 
-const { isRegExp } = require( 'typecheck' )
+const { isRegExp, isNumber } = require( 'typecheck' )
 
 function poling ( callback, options ) {
 
     function wait ( browser ) {
-        while ( browser.Busy || browser.readystate != 4 ) {
-            WScript.Sleep(100)
+        if ( isNumber( browser ) ) {
+            console.log( 'number' )
+            let time = Math.random() * browser
+            WScript.Sleep( browser / 2 + time )
+        } else {
+            while ( browser.Busy || browser.readystate != 4 ) {
+                WScript.Sleep(100)
+            }
         }
     }
 
@@ -31,9 +37,10 @@ function poling ( callback, options ) {
     let result = {}
 
     try {
-        callback( app, event, result )
+        callback( app, event, result, wait )
 
         let state = ''
+        console.print( 'poling' )
 
         while ( true ) {
             wait( app )
@@ -44,14 +51,13 @@ function poling ( callback, options ) {
                 continue
             }
             wait( app )
-            console.print( '\n' )
             event.emit( url )
             state = url
         }
     } catch ( error ) {
-        console.print( '\n' )
-        app.Visible = true
-        if ( options.exception ) options.exception( error, result )
+        console.log( '\n' )
+        if ( app != null ) app.Visible = true
+        if ( options.exception ) options.exception( error, result, app )
         else throw error
     }
 }

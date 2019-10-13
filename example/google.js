@@ -1,33 +1,29 @@
-const app = require( 'wachaon@browser' )
+const { poling: app } = require( 'wachaon@browser' )
+const log  = require( 'log' )
 
 const options = {
-    home: 'https://www.google.com/?hl=ja'
+    home: 'https://www.google.com/',
+    // invisible: true,
+    exception ( err, result ) {
+        console.log( err.message )
+        log( () => result.searchResult )
+    }
 }
 
-app( ( ie, event, result ) => {
-    ie.Document.getElementByName( 'q' ).value = 'wachaon'
-    ie.Document.getElementByName( 'btnK' ).click()
+app( ( ie, event, result, wait ) => {
+    ie.Document.getElementsByName( 'q' )[0].value = 'wsh JScript'
+    ie.Document.getElementsByName( 'btnK' )[0].click()
+    result.searchResult = []
 
-    //event.on( )//, ( url ) => )
+    event.on( /^https:\/\/www.google.com\/search\?/, ( url ) => {
+        const searchResult = Array.from( ie.Document.querySelectorAll( '.rc' ) )
+        searchResult.forEach( node => {
+            result.searchResult.push( Array.from( node.querySelectorAll( '.s' ) )[0].textContent + '\n' )
+        } )
+        log( () => wait )
+        wait( 3000 )
+        ie.Quit()
+        throw new Error( 'ie.Quit()' )
+    } )
 
 }, options )
-
-/*
-<input
-class="gLFyf gsfi"
-maxlength="2048"
-name="q"
-type="text"
-jsaction="paste:puy29d"
-aria-autocomplete="both"
-aria-haspopup="false"
-autocapitalize="off"
-autocomplete="off"
-autocorrect="off"
-role="combobox"
-spellcheck="false"
-title="検索"
-value=""
-aria-label="検索"
-data-ved="0ahUKEwiItPzZ8ZflAhUHvZQKHaFMBKsQ39UDCAQ"/>
-*/
