@@ -13,7 +13,6 @@ function poling ( callback, options ) {
                 console.print( carriageReturn + 'waiting ' + display[ count++ % 4 ] )
                 WScript.Sleep( 50 )
             }
-            WScript.Sleep( browser / 2 + time )
         } else {
             while ( browser.Busy || browser.readystate != 4 ) {
                 WScript.Sleep(100)
