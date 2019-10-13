@@ -3,7 +3,7 @@ const log  = require( 'log' )
 
 const options = {
     home: 'https://www.google.com/',
-    // invisible: true,
+    invisible: true,
     exception ( err, result ) {
         console.log( err.message )
         log( () => result.searchResult )
@@ -20,10 +20,9 @@ app( ( ie, event, result, wait ) => {
         searchResult.forEach( node => {
             result.searchResult.push( Array.from( node.querySelectorAll( '.s' ) )[0].textContent + '\n' )
         } )
-        log( () => wait )
-        wait( 3000 )
+        wait( 5000 )
         ie.Quit()
-        throw new Error( 'ie.Quit()' )
+        // throw new Error( 'ie.Quit()' )
     } )
 
 }, options )
