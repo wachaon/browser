@@ -39,18 +39,16 @@ function poling ( callback, options ) {
         callback( app, event, result, wait )
 
         let state = ''
-        console.print( 'poling' )
+        let count = 0
+        let carriageReturn = '\u001B[1G'
 
         while ( true ) {
-            let backspace = '\u001B[1G'
             let display = [ '|', '/', '-', '\\' ]
-            let count = 0
-            console.print( display[ count++ ] )
             wait( app )
             let url = app.document.location.href
             if ( state === url ) {
-                console.print( backspace + display[ count++ % 4 ] )
-                WScript.Sleep( 100 )
+                console.print( carriageReturn + 'poling ' + display[ count++ % 4 ] )
+                WScript.Sleep( 50 )
                 continue
             }
             wait( app )
