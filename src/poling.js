@@ -1,4 +1,3 @@
-
 const { isRegExp, isNumber } = require( 'typecheck' )
 
 function poling ( callback, options ) {
@@ -10,10 +9,12 @@ function poling ( callback, options ) {
             const display = [ '|', '/', '-', '\\' ]
             const carriageReturn = '\u001B[1G'
             let count = 0
+
             while ( Date.now() < finish ) {
                 console.print( carriageReturn + 'waiting ' + display[ count++ % 4 ] )
                 WScript.Sleep( 50 )
             }
+            console.print( carriageReturn + '         ' + carriageReturn )
         } else {
             while ( browser.Busy || browser.readystate != 4 ) {
                 WScript.Sleep(100)
@@ -50,7 +51,6 @@ function poling ( callback, options ) {
         let state = ''
         let count = 0
 
-
         while ( true ) {
             wait( app )
             const url = app.document.location.href
@@ -59,12 +59,13 @@ function poling ( callback, options ) {
                 WScript.Sleep( 50 )
                 continue
             }
+            console.print( carriageReturn + '        ' + carriageReturn )
+
             wait( app )
             event.emit( url )
             state = url
         }
     } catch ( error ) {
-        console.log( '\n' )
         if ( app != null ) app.Visible = true
         if ( options.exception ) options.exception( error, result, app )
         else throw error
