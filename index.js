@@ -1,3 +1,1 @@
-const poling = require( '/src/poling' )
-
-module.exports = poling
+module.exports = require( '/src/poling' )
