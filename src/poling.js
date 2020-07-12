@@ -1,75 +1,108 @@
-const { isRegExp, isNumber } = require( 'typecheck' )
+const WShell = require('WScript.Shell')
+const Event = require('event')
+const { isRegExp, isNumber } = require('typecheck')
+const { TypeName } = require('VBScript')
+const { cursorHrAbs, eraseInLine } = require('ansi')
+const { SPACE } = require('text')
+const anime = ['|', '/', '-', '\\']
 
-function poling ( callback, options ) {
 
-    function wait ( browser ) {
-        if ( isNumber( browser ) ) {
-            const time = Math.random() * browser
-            const finish = new Date().getTime() + browser / 2 + time
-            const display = [ '|', '/', '-', '\\' ]
-            const carriageReturn = '\u001B[1G'
-            let count = 0
-
-            while ( Date.now() < finish ) {
-                console.print( carriageReturn + 'waiting ' + display[ count++ % 4 ] )
-                WScript.Sleep( 50 )
+class Navigation extends Event {
+    emit(url, ...args) {
+        this.forEach((callback, listener) => {
+            if (isRegExp(listener) && listener.test(url) || listener === url) {
+                callback.forEach(cb => cb(url, ...args))
             }
-            console.print( carriageReturn + '         ' + carriageReturn )
-        } else {
-            while ( browser.Busy || browser.readystate != 4 ) {
-                WScript.Sleep(100)
-            }
-        }
+        })
     }
+}
+const navigation = new Navigation
 
-    const app = require( 'InternetExplorer.Application' )
-    app.Visible = !options.invisible
-    app.Navigate( options.home || 'about:blank' )
+const defaultOptions = {
+    invisible: false,
+    home: 'about:blank',
+    complate() {
+        this.run = false
+        console.log('\nComplate! exports: %O', this.exports)
+    },
+    expection(error) {
+        console.log('\nExpection! exports: %O', this.exports)
+        throw error
+    },
+    exports: [],
+    navigation,
+    run: true
+}
 
-    wait( app )
-
-    const events = new Map()
-    const event = {
-        on ( target, fn ) {
-            if ( events.has( target ) ) events.get( target ).push( fn )
-            else events.set( target, [ fn ] )
-        },
-        emit ( url, ...params ) {
-            events.forEach( ( callbacks, evaluation ) => {
-                if ( ( isRegExp( evaluation ) && evaluation.test( url ) ) || String( evaluation ) === url ) callbacks.forEach( fn => fn( url, ...params ) )
-            } )
-        }
-    }
-
-    let result = {}
+function browser (callback, options = {}) {
+    const status = Object.assign(defaultOptions, options)
+    const app = require('InternetExplorer.Application')
+    app.Visible = !status.invisible
+    app.Navigate(status.home)
+    let url = status.home
+    wait(app)
+    WShell.AppActivate(app.LocationName)
 
     try {
-        callback( app, event, result, wait )
+        callback(app, status)
 
-        const display = [ '|', '/', '-', '\\' ]
-        const carriageReturn = '\u001B[1G'
-        let state = ''
+        status.document = app.Document
+        status.window = app.Document.parentWindow
+        navigation.emit(url, status)
+
         let count = 0
-
-        while ( true ) {
-            wait( app )
-            const url = app.document.location.href
-            if ( state === url ) {
-                console.print( carriageReturn + 'poling ' + display[ count++ % 4 ] )
-                WScript.Sleep( 50 )
-                continue
+        while ( status.run ) {
+            wait(app)
+            if (url === app.LocationURL) {
+                console.print(cursorHrAbs(1) + anime[count % 4] + SPACE + 'polling')
+                count++
+                WScript.Sleep(100)
+            } else {
+                console.print(cursorHrAbs(1) + eraseInLine(2))
+                url = app.LocationURL
+                status.document = app.Document
+                status.window = app.Document.parentWindow
+                navigation.emit(url, status)
             }
-            console.print( carriageReturn + '        ' + carriageReturn )
-
-            wait( app )
-            event.emit( url )
-            state = url
         }
-    } catch ( error ) {
-        if ( app != null ) app.Visible = true
-        if ( options.exception ) options.exception( error, result, app )
-        else throw error
+    } catch (error) {
+        status.expection(error)
+    } finally {
+        if(browserExist(app)) app.Quit()
     }
 }
 
-exports.poling = poling
+module.exports = browser
+
+// util
+function browserExist (app) {
+  return app != null && TypeName(app) === 'IWebBrowser2'
+}
+
+function wait(app) {
+    if (app == null) return showWait(2000)
+    if (browserExist(app)) return showReadyState(app)
+    if (isNumber(app)) return showWait(app)
+}
+
+function showReadyState (app) {
+    const state = ["uninitialized","loading","loaded","interactive","complete"]
+    let count = 0
+    while (app.Busy || app.readystate < 4) {
+        console.print(cursorHrAbs(1) + anime[count % 4] + SPACE + state[app.readystate])
+        WScript.Sleep(100)
+        count++
+    }
+    console.print(cursorHrAbs(1) + eraseInLine(2))
+}
+
+function showWait (num) {
+    const end = new Date().getTime() + num
+    let count = 0
+    while (new Date().getTime() < end) {
+        console.print(cursorHrAbs(1) + anime[count % 4] + SPACE + 'waiting')
+        WScript.Sleep(100)
+        count++
+    }
+    console.print(cursorHrAbs(1) + eraseInLine(2))
+}
