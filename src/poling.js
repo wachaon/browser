@@ -97,7 +97,7 @@ function showReadyState (app) {
 }
 
 function showWait (num) {
-    const end = new Date().getTime() + num
+    const end = new Date().getTime() + num * (Math.random() * 0.5 + 0.75)
     let count = 0
     while (new Date().getTime() < end) {
         console.print(cursorHrAbs(1) + anime[count % 4] + SPACE + 'waiting')
