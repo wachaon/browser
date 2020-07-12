@@ -1,6 +1,8 @@
 # browser
 Operate Internet Explorer with wes
 
+
+
 ## install
 
 ```
@@ -15,8 +17,8 @@ const browser = require('@wachaon/browser')
 browser((ie, status) => {
     const { navigation } = status
 
-    navigation.on(/google/, (url, { window }) => {
-        console.log('OK google! %O', window.title)
+    navigation.on(/google/, (url, { window, document }) => {
+        console.log('OK google! %O', document.title)
     })
 
 }, {home: 'https://google.com/'})
