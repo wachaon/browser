@@ -36,6 +36,7 @@ const defaultOptions = {
 
 function browser (callback, options = {}) {
     const status = Object.assign(defaultOptions, options)
+    status.wait = wait
     const app = require('InternetExplorer.Application')
     app.Visible = !status.invisible
     app.Navigate(status.home)

@@ -1,6 +1,6 @@
 {
   "name": "browser",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "Operate Internet Explorer with wes",
   "main": "index.js",
   "scripts": {
